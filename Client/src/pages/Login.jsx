@@ -1,4 +1,4 @@
-import { AppWindowIcon, CodeIcon } from "lucide-react";
+import { AppWindowIcon, CodeIcon, Loader2 } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -10,11 +10,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  useLoginUserMutation,
+  useRegisterUserMutation,
+} from "@/features/api/authApi";
 
 const Login = () => {
   const [loginInput, setLoginInput] = useState({ email: "", password: "" });
@@ -25,6 +35,25 @@ const Login = () => {
     //role: ""
   });
 
+  const [
+    registerUser,
+    {
+      data: registerData,
+      error: registerError,
+      isLoading: registerIsLoading,
+      isSuccess: registerIsSuccess,
+    },
+  ] = useRegisterUserMutation();
+  const [
+    loginUser,
+    {
+      data: loginData,
+      error: loginError,
+      isLoading: loginIsLoading,
+      isSuccess: loginIsSuccess,
+    },
+  ] = useLoginUserMutation();
+
   const changeInputHandler = (e, type) => {
     const { name, value } = e.target;
     if (type === "signup") {
@@ -34,10 +63,12 @@ const Login = () => {
     }
   };
 
-  const handleRegistration = (type) => {
-    const inputData = (type==="signup") ? signupInput : loginInput
-    console.log(inputData);
-  }
+  const handleRegistration = async (type) => {
+    const inputData = type === "signup" ? signupInput : loginInput;
+    // console.log(inputData);
+    const action = type === "signup" ? registerUser : loginUser;
+    await action(inputData);
+  };
 
   return (
     <div className="flex items-center w-full justify-center">
@@ -89,7 +120,7 @@ const Login = () => {
                     onChange={(e) => changeInputHandler(e, "signup")}
                   />
                 </div>
-                 {/* <div className="grid gap-3">
+                {/* <div className="grid gap-3">
                   <Label htmlFor="role">Role</Label>
                   <Select
                     value={signupInput.role}
@@ -109,8 +140,18 @@ const Login = () => {
                 </div> */}
               </CardContent>
               <CardFooter>
-                <Button onClick={(e) => handleRegistration("signup")}>
-                  Signup
+                <Button
+                  disabled={registerIsLoading}
+                  onClick={(e) => handleRegistration("signup")}
+                >
+                  {registerIsLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please
+                      Wait
+                    </>
+                  ) : (
+                    "Sign Up"
+                  )}
                 </Button>
               </CardFooter>
             </Card>
@@ -146,11 +187,20 @@ const Login = () => {
                     onChange={(e) => changeInputHandler(e, "login")}
                   />
                 </div>
-
               </CardContent>
               <CardFooter>
-                <Button onClick={(e) => handleRegistration("login")}>
-                  Login
+                <Button
+                  disabled={loginIsLoading}
+                  onClick={(e) => handleRegistration("login")}
+                >
+                  {loginIsLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please
+                      Wait
+                    </>
+                  ) : (
+                    "Login"
+                  )}
                 </Button>
               </CardFooter>
             </Card>
