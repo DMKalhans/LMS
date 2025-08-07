@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
 
-dotenv.config({});
+dotenv.config();
 
 const generateToken = (res, user, message) => {
-    const token = jwt.sign({userId: user._id}, process.env.SECRET_KEY, {expiresIn:'1d'});
+    const token = jwt.sign({userId: user.id}, process.env.SECRET_KEY, {expiresIn:'1d'});
     return res.status(200).cookie("token", token, {
         httpOnly: true,
         sameSite: "strict",

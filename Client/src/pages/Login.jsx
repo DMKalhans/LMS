@@ -1,5 +1,5 @@
 import { AppWindowIcon, CodeIcon, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +25,8 @@ import {
   useLoginUserMutation,
   useRegisterUserMutation,
 } from "@/features/api/authApi";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [loginInput, setLoginInput] = useState({ email: "", password: "" });
@@ -33,7 +35,7 @@ const Login = () => {
     email: "",
     password: "",
     //role: ""
-  });
+  })
 
   const [
     registerUser,
@@ -41,7 +43,7 @@ const Login = () => {
       data: registerData,
       error: registerError,
       isLoading: registerIsLoading,
-      isSuccess: registerIsSuccess,
+      isSuccess: registerIsSuccess,                            // object destructring with name modification
     },
   ] = useRegisterUserMutation();
   const [
@@ -50,7 +52,7 @@ const Login = () => {
       data: loginData,
       error: loginError,
       isLoading: loginIsLoading,
-      isSuccess: loginIsSuccess,
+      isSuccess: loginIsSuccess,                              // object destructring with name modification
     },
   ] = useLoginUserMutation();
 
@@ -70,13 +72,39 @@ const Login = () => {
     await action(inputData);
   };
 
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if(registerIsSuccess && registerData){
+      toast.success(registerData.message || "Account created successfully.");
+      navigate("/login")
+    }
+    if(registerError){
+      toast.error(registerError?.data?.message || "Error while creating account.");
+    }
+    if(loginIsSuccess && loginData){
+      toast.success(loginData.message || "Logged in successfully.");
+      navigate("/")
+    }
+    if(loginError){
+      toast.error(loginError?.data?.message || "Login failed.")
+    }
+  }, [
+    loginIsLoading,
+    registerIsLoading,
+    loginData,
+    registerData,
+    loginError,
+    registerError
+  ])
+
   return (
-    <div className="flex items-center w-full justify-center">
+    <div className="flex items-center w-full justify-center mt-20 ">
       <div className="flex w-full max-w-sm flex-col gap-6">
         <Tabs defaultValue="account">
-          <TabsList>
-            <TabsTrigger value="signup">Signup</TabsTrigger>
-            <TabsTrigger value="login">Login</TabsTrigger>
+          <TabsList className="flex w-full">
+            <TabsTrigger value="signup" className="flex-1 py-2 text-center data-[state=active]:border-b-2 data-[state=active]:border-gray-100">Signup</TabsTrigger>
+            <TabsTrigger value="login" className="flex-1 py-2 text-center data-[state=active]:border-b-2 data-[state=active]:border-gray-100">Login</TabsTrigger>
           </TabsList>
           <TabsContent value="signup">
             <Card>
@@ -99,7 +127,7 @@ const Login = () => {
                   />
                 </div>
                 <div className="grid gap-3">
-                  <Label htmlFor="tabs-demo-username">Username</Label>
+                  <Label htmlFor="tabs-demo-username">Email</Label>
                   <Input
                     type="email"
                     name="email"
@@ -166,7 +194,7 @@ const Login = () => {
               </CardHeader>
               <CardContent className="grid gap-6">
                 <div className="grid gap-3">
-                  <Label htmlFor="tabs-demo-current">Username</Label>
+                  <Label htmlFor="tabs-demo-current">Email</Label>
                   <Input
                     type="email"
                     name="email"

@@ -20,7 +20,7 @@ export const authApi = createApi({
     loginUser: builder.mutation({
       query: (inputData) => ({
         url: "login",
-        method: "GET",
+        method: "POST",
         body: inputData,
       }),
       async onQueryStarted(_, { queryFulfilled, dispatch }) {
@@ -32,6 +32,18 @@ export const authApi = createApi({
         }
       },
     }),
+    loadUser: builder.query({
+      query: (inputData) => ({
+        url: "profile",
+        method: "GET",
+      })
+    }),
+    loadMyLearning : builder.query({
+      query: (inputData) =>({
+        url: "learning",
+        method: "GET"
+      })
+    })
   }),
 });
-export const { useRegisterUserMutation, useLoginUserMutation } = authApi;
+export const { useRegisterUserMutation, useLoginUserMutation, useLoadUserQuery, useLoadMyLearningQuery } = authApi;
