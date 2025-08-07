@@ -1,5 +1,5 @@
 import { Menu, School } from "lucide-react";
-import React from "react";
+import { React, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,10 +22,24 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useLogoutUserMutation } from "@/features/api/authApi";
+import { toast } from "sonner";
 
 function Navbar() {
   const user = true;
+  const [logoutUser, { data, isSuccess }] = useLogoutUserMutation();
+  const navigate = useNavigate();
+  const logoutHandler = async () => {
+    await logoutUser();
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success(data?.message || "User log out.");
+      navigate("/login");
+    }
+  }, [isSuccess]);
 
   return (
     <div className="h-16 dark:bg-[#0A0A0A] bg-white dark:border-b-gray-800 border-b-gray-200 fixed top-0 left-0 right-0 duration-300 z-10 shadow-sm">
@@ -59,8 +73,8 @@ function Navbar() {
                   <DropdownMenuItem>
                     <Link to="/profile">My Profile</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link to="/logout">Logout</Link>
+                  <DropdownMenuItem onClick={logoutHandler}>
+                    Log out
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
@@ -120,7 +134,9 @@ const MobileNavbar = () => {
       </SheetTrigger>
       <SheetContent className="flex flex-col">
         <SheetHeader className="flex flex-row items-center justify-between mt-5">
-          <SheetTitle className="font-extrabold text-2xl">SkillForge</SheetTitle>
+          <SheetTitle className="font-extrabold text-2xl">
+            SkillForge
+          </SheetTitle>
           <DarkMode />
         </SheetHeader>
 

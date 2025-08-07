@@ -12,12 +12,50 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Course from "./Course";
-import { useLoadUserQuery } from "@/features/api/authApi";
+import {
+  useLoadUserQuery,
+  useUpdateUserMutation,
+} from "@/features/api/authApi";
+import { toast } from "sonner";
 
 function Profile() {
-  const { data, isLoading } = useLoadUserQuery();
+  const { data, isLoading, refetch } = useLoadUserQuery();
+  const [newName, setNewName] = useState("");
+  const [profilePhoto, setProfilePhoto] = useState("");
+  const [
+    updateUser,
+    {
+      data: updateUserData,
+      isLoading: updateUserIsLoading,
+      isError,
+      error,
+      isSuccess,
+    },
+  ] = useUpdateUserMutation();
+
+  const onChangeHandler = (e) => {
+    const file = e.target.files?.[0];
+    if (file) setProfilePhoto(file);
+  };
+
+  const updateProfileHandler = async () => {
+    const formData = new FormData();
+    formData.append("name", newName);
+    formData.append("profilePhoto", profilePhoto);
+    await updateUser(formData);
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      refetch();
+      toast.success(data.message || "Profile updated.");
+    }
+    if (isError) {
+      toast.error(error.message || "Failed to update profile");
+    }
+  }, [error, updateUserData, isSuccess, isError]);
 
   if (isLoading || !data) {
     return (
@@ -48,7 +86,12 @@ function Profile() {
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="secondary" className="mt-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:scale-105 hover:shadow-xl transition-all duration-300 ease-in-out">Edit Profile</Button>
+              <Button
+                variant="secondary"
+                className="mt-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 hover:scale-105 hover:shadow-xl transition-all duration-300 ease-in-out"
+              >
+                Edit Profile
+              </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -60,16 +103,27 @@ function Profile() {
               <div className="space-y-4 py-4">
                 <div className="flex flex-col space-y-1">
                   <Label>Name</Label>
-                  <Input type="text" placeholder="Name" />
+                  <Input
+                    type="text"
+                    placeholder="Name"
+                    onChange={(e) => setNewName(e.target.value)}
+                  />
                 </div>
                 <div className="flex flex-col space-y-1">
                   <Label>Profile Photo</Label>
-                  <Input type="file" accept="image/*" />
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={onChangeHandler}
+                  />
                 </div>
               </div>
               <DialogFooter>
-                <Button disabled={isLoading}>
-                  {isLoading ? (
+                <Button
+                  disabled={updateUserIsLoading}
+                  onClick={updateProfileHandler}
+                >
+                  {updateUserIsLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Please Wait
@@ -104,7 +158,7 @@ function Profile() {
       <div>
         <h2 className="text-2xl font-semibold mb-6">📚 Enrolled Courses</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {(!courses || courses.length === 0 || courses[0] === null) ? (
+          {!courses || courses.length === 0 || courses[0] === null ? (
             <div className="text-sm text-gray-500 italic col-span-full">
               You haven’t enrolled in any course yet.
             </div>

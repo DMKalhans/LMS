@@ -1,6 +1,7 @@
 import db from "../database/db.js";
 import bcrypt from "bcryptjs";
 import generateToken from "../utils/generateToken.js";
+import { deleteMediaFromCLoudinary, uploadMedia } from "../utils/cloudinary.js";
 
 const saltRounds = 10;
 
@@ -104,7 +105,7 @@ export const logout = async (req, res) => {
 export const getUserProfile = async (req, res) => {
   try {
     const userId = req.user.userId;
-    console.log(req.user)
+    console.log(req.user);
     const result = await db.query(
       `SELECT users.id, users.name, users.email, users.role, users.photo_url,  COALESCE(ARRAY_AGG(user_courses.course_id), '{}') AS courses 
       FROM users 
@@ -114,7 +115,7 @@ export const getUserProfile = async (req, res) => {
       [userId]
     );
     const user = result.rows[0];
-    console.log(user)
+    console.log(user);
     if (!user)
       return res.status(404).json({
         message: "Profile not found!",
@@ -129,6 +130,72 @@ export const getUserProfile = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to fetch profile, try again",
+    });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const userName = req.body.name;
+    const profilePhoto = req.file;
+    // Get user from backend
+    const userResult = await db.query(
+      `SELECT users.name as name, users.photo_url as photo_url FROM users WHERE id = $1;`,
+      [userId]
+    );
+    const user = userResult.rows[0];
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User does not exist.",
+      });
+    }
+
+    let photoUrl;
+    if (profilePhoto) {
+      // If user already has a profile photo - delete it.
+      if (user.photo_url) {
+        const publicId = user.photo_url.split("/").pop().split(".")[0];
+        await deleteMediaFromCLoudinary(publicId);
+      }
+
+      // Upload new image to cloudinary
+      const cloudResponse = await uploadMedia(profilePhoto.path);
+      photoUrl = cloudResponse.secure_url;
+    }
+    //update db fields for name and photo_url accordingly - can refactor this section and use dynamic construction of query
+    if (!userName && !photoUrl) {
+      return res.status(400).json({
+        success: false,
+        message: "No data provided to update.",
+      });
+    }
+    if (userName && photoUrl) {
+      await db.query(
+        "UPDATE users SET name = $1, photo_url = $2 WHERE id = $3",
+        [userName, photoUrl, userId]
+      );
+    } else if (userName) {
+      await db.query("UPDATE users SET name = $1 WHERE id = $2", [
+        userName,
+        userId,
+      ]);
+    } else if (photoUrl) {
+      await db.query("UPDATE users SET photo_url = $1 WHERE id = $2", [
+        photoUrl,
+        userId,
+      ]);
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update profile",
     });
   }
 };
