@@ -6,6 +6,10 @@ const saltRounds = 10;
 
 export const signup = async (req, res) => {
   try {
+    console.log(
+      "signup called inside user.controller.js and data recieved is:",
+      req.body
+    );
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
@@ -34,7 +38,6 @@ export const signup = async (req, res) => {
       success: true,
       message: "User created Successfully",
     });
-
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -73,12 +76,59 @@ export const login = async (req, res) => {
         success: false,
         message: "Incorrect Password!!",
       });
-      generateToken(res, user, `Welcome Back ${user.name}`)
+    generateToken(res, user, `Welcome back ${user.name}`);
   } catch (error) {
     console.log(error);
     return res.status(500).json({
       success: false,
       message: "Failed to login, try again",
+    });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    return res.status(200).cookie("token", "", { maxAge: 0 }).json({
+      message: "Logged Out Successfully",
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to logout, try again",
+    });
+  }
+};
+
+export const getUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    console.log(req.user)
+    const result = await db.query(
+      `SELECT users.id, users.name, users.email, users.role, users.photo_url,  COALESCE(ARRAY_AGG(user_courses.course_id), '{}') AS courses 
+      FROM users 
+      LEFT JOIN user_courses ON users.id = user_courses.user_id 
+      WHERE id = $1
+      GROUP BY users.id, users.name, users.email, users.role, users.photo_url;`,
+      [userId]
+    );
+    const user = result.rows[0];
+    console.log(user)
+    if (!user)
+      return res.status(404).json({
+        message: "Profile not found!",
+        success: false,
+      });
+    return res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch profile, try again",
     });
   }
 };
