@@ -36,14 +36,35 @@ export const authApi = createApi({
       query: (inputData) => ({
         url: "profile",
         method: "GET",
-      })
+      }),
     }),
-    loadMyLearning : builder.query({
-      query: (inputData) =>({
+    updateUser: builder.mutation({
+      query: (formData) => ({
+        url: "profile/update",
+        method: "PUT",
+        body: formData,
+        credentials: "include",
+      }),
+    }),
+    loadMyLearning: builder.query({
+      query: (inputData) => ({
         url: "learning",
-        method: "GET"
-      })
-    })
+        method: "GET",
+      }),
+    }),
+    logoutUser: builder.mutation({
+      query: (inputData) => ({
+        url: "logout",
+        method: "GET",
+      }),
+    }),
   }),
 });
-export const { useRegisterUserMutation, useLoginUserMutation, useLoadUserQuery, useLoadMyLearningQuery } = authApi;
+export const {
+  useRegisterUserMutation,
+  useLoginUserMutation,
+  useLogoutUserMutation,
+  useLoadUserQuery,
+  useLoadMyLearningQuery,
+  useUpdateUserMutation,
+} = authApi;
