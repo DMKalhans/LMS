@@ -25,9 +25,10 @@ import { Separator } from "@/components/ui/separator";
 import { Link, useNavigate } from "react-router-dom";
 import { useLogoutUserMutation } from "@/features/api/authApi";
 import { toast } from "sonner";
+import { useSelector } from "react-redux";
 
 function Navbar() {
-  const user = true;
+  const { user } = useSelector((store) => store.auth);
   const [logoutUser, { data, isSuccess }] = useLogoutUserMutation();
   const navigate = useNavigate();
   const logoutHandler = async () => {
@@ -60,7 +61,12 @@ function Navbar() {
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
                 <Avatar className="cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all">
-                  <AvatarImage src="https://i.pinimg.com/736x/4e/0d/7e/4e0d7e9b5e0f542fd4f68715554f1c98.jpg" />
+                  <AvatarImage
+                    src={
+                      user?.photo_url ||
+                      "https://i.pinimg.com/736x/4e/0d/7e/4e0d7e9b5e0f542fd4f68715554f1c98.jpg"
+                    }
+                  />
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
@@ -77,10 +83,14 @@ function Navbar() {
                     Log out
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-center justify-center font-semibold text-indigo-700 bg-indigo-100 hover:bg-indigo-200 transition">
-                  <Link to="/dashboard">Go to Dashboard</Link>
-                </DropdownMenuItem>
+                {user.role === "instructor" && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="text-center justify-center font-semibold text-indigo-700 bg-indigo-100 hover:bg-indigo-200 transition">
+                      <Link to="/dashboard">Go to Dashboard</Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
@@ -88,10 +98,14 @@ function Navbar() {
               <Button
                 variant="outline"
                 className="hover:bg-indigo-50 hover:text-indigo-700 transition-all"
+                onClick={() => navigate("/login")}
               >
                 Login
               </Button>
-              <Button className="bg-gradient-to-tr from-indigo-600 to-purple-600 text-white hover:brightness-110 transition-all">
+              <Button
+                className="bg-gradient-to-tr from-indigo-600 to-purple-600 text-white hover:brightness-110 transition-all"
+                onClick={() => navigate("/login")}
+              >
                 Signup
               </Button>
             </div>
