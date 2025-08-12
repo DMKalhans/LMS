@@ -104,8 +104,10 @@ export const logout = async (req, res) => {
 
 export const getUserProfile = async (req, res) => {
   try {
+    //console.log("User is obtained from isAuthenticated => getUserProfile as",req.user);
+    
     const userId = req.user.userId;
-    console.log(req.user);
+    
     const result = await db.query(
       `SELECT users.id, users.name, users.email, users.role, users.photo_url,  COALESCE(ARRAY_AGG(user_courses.course_id), '{}') AS courses 
       FROM users 
@@ -115,7 +117,9 @@ export const getUserProfile = async (req, res) => {
       [userId]
     );
     const user = result.rows[0];
-    console.log(user);
+
+    //console.log("User is extracted from database based on userId inside req.user as: ",user);
+
     if (!user)
       return res.status(404).json({
         message: "Profile not found!",
@@ -156,7 +160,7 @@ export const updateProfile = async (req, res) => {
     if (profilePhoto) {
       // If user already has a profile photo - delete it.
       if (user.photo_url) {
-        const publicId = user.photo_url.split("/").pop().split(".")[0];
+        const publicId = user.photo_url.split("/").pop().split(".")[0]; //extract publicId from photo_url
         await deleteMediaFromCLoudinary(publicId);
       }
 
@@ -164,6 +168,7 @@ export const updateProfile = async (req, res) => {
       const cloudResponse = await uploadMedia(profilePhoto.path);
       photoUrl = cloudResponse.secure_url;
     }
+
     //update db fields for name and photo_url accordingly - can refactor this section and use dynamic construction of query
     if (!userName && !photoUrl) {
       return res.status(400).json({
