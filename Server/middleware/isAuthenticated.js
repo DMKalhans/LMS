@@ -6,6 +6,7 @@ dotenv.config();
 const isAuthenticated = async (req, res, next) => {
   try {
     const token = req.cookies.token;
+    //console.log("Token inside isAuthenticated as: ", token);
 
     if (!token) {
       return res.status(401).json({
@@ -21,6 +22,8 @@ const isAuthenticated = async (req, res, next) => {
         message: "Invalid session",
       });
     }
+
+    // console.log("Decoded inside isAuthenticated as: ", decoded);
 
     req.user = decoded; // Store decoded payload (e.g., { userId: ... })
     next();

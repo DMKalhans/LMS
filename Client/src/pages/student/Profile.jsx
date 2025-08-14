@@ -19,6 +19,7 @@ import {
   useUpdateUserMutation,
 } from "@/features/api/authApi";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 function Profile() {
   const { data, isLoading, refetch } = useLoadUserQuery();
@@ -109,6 +110,7 @@ function Profile() {
                   <Label>Name</Label>
                   <Input
                     type="text"
+                    value={newName}
                     placeholder="Name"
                     onChange={(e) => setNewName(e.target.value)}
                   />

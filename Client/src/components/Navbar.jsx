@@ -45,13 +45,24 @@ function Navbar() {
   return (
     <div className="h-16 dark:bg-[#0A0A0A] bg-white dark:border-b-gray-800 border-b-gray-200 fixed top-0 left-0 right-0 duration-300 z-10 shadow-sm">
       <div className="max-w-7xl mx-auto hidden md:flex justify-between items-center gap-10 h-full px-4">
-        {/* Left: Logo */}
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-md">
-            <School size={22} className="text-white" />
+          <div className="relative p-2 rounded-2xl">
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500 via-blue-500 to-fuchsia-500 shadow-[0_4px_14px_rgba(79,70,229,0.4)]" />
+
+            <div className="absolute inset-0 rounded-2xl bg-white/10 [mask-image:radial-gradient(120%_80% at 10% 0%,#000_30%,transparent_60%)]" />
+            <School
+              size={22}
+              className="relative text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]"
+            />
           </div>
-          <h1 className="font-extrabold text-2xl tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-blue-700">
-            <Link to="/">SkillForge</Link>
+
+          <h1 className="font-extrabold text-2xl tracking-tight flex">
+            <span className="text-neutral-900 dark:text-white">
+              <Link to="/">Skill</Link>
+            </span>
+            <span className="bg-gradient-to-r from-indigo-600 via-blue-600 to-fuchsia-500 bg-clip-text text-transparent">
+              <Link to="/">Forge</Link>
+            </span>
           </h1>
         </div>
 
@@ -73,12 +84,12 @@ function Navbar() {
               <DropdownMenuContent className="w-56" align="start">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <Link to="/learning">My Learning</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link to="/profile">My Profile</Link>
-                  </DropdownMenuItem>
+                  <Link to="/learning">
+                    <DropdownMenuItem>My Learning</DropdownMenuItem>
+                  </Link>
+                  <Link to="/profile">
+                    <DropdownMenuItem>My Profile</DropdownMenuItem>
+                  </Link>
                   <DropdownMenuItem onClick={logoutHandler}>
                     Log out
                   </DropdownMenuItem>
