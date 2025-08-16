@@ -19,7 +19,6 @@ import {
   useUpdateUserMutation,
 } from "@/features/api/authApi";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
 
 function Profile() {
   const { data, isLoading, refetch } = useLoadUserQuery();
@@ -71,6 +70,7 @@ function Profile() {
   }
 
   const { name, email, role, photo_url, courses } = data.user;
+  console.log(data.user);
 
   return (
     <div className="max-w-6xl mx-auto px-4 md:px-8 my-24 space-y-12">
@@ -169,9 +169,7 @@ function Profile() {
               You haven’t enrolled in any course yet.
             </div>
           ) : (
-            courses.map((courseId, index) => (
-              <Course key={index} courseId={courseId} />
-            ))
+            courses.map((data) => <Course data={data} />)
           )}
         </div>
       </div>

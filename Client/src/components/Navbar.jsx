@@ -98,7 +98,7 @@ function Navbar() {
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem className="text-center justify-center font-semibold text-indigo-700 bg-indigo-100 hover:bg-indigo-200 transition">
-                      <Link to="/dashboard">Go to Dashboard</Link>
+                      <Link to="/admin/dashboard">Go to Dashboard</Link>
                     </DropdownMenuItem>
                   </>
                 )}

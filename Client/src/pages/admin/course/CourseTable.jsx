@@ -63,19 +63,20 @@ function CourseTable() {
         <TableBody>
           {data.courses.map((course) => (
             <TableRow
-              key={course.id}
+              key={course.course_id}
               className="hover:bg-gray-50 dark:hover:bg-gray-800 transition"
             >
               <TableCell className="font-medium text-gray-900 dark:text-gray-100">
-                {course.course_price ? `$${course.course_price}` : "—"}
+                ₹{course.course_price}
               </TableCell>
               <TableCell>
                 <Badge
-                  className={`${
+                  variant={course.is_published ? "default" : "secondary"}
+                  className={
                     course.is_published
                       ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
-                      : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
-                  } px-3 py-1 rounded-full font-medium`}
+                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"
+                  }
                 >
                   {course.is_published ? "Published" : "Draft"}
                 </Badge>
@@ -85,10 +86,10 @@ function CourseTable() {
               </TableCell>
               <TableCell className="text-right">
                 <Button
-                  variant="outline"
                   size="sm"
-                  className="border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  onClick = {() => (navigate(`${course.id}`))}
+                  variant="ghost"
+                  onClick={() => navigate(`${course.course_id}`)}
+                  className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:text-indigo-300 dark:hover:bg-indigo-900/20"
                 >
                   <Edit3 className="w-4 h-4 mr-2" /> Edit
                 </Button>

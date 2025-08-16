@@ -24,19 +24,24 @@ import { Loader, Loader2 } from "lucide-react";
 import {
   useEditCourseMutation,
   useGetCourseByIdQuery,
+  usePublishCourseMutation,
 } from "@/features/api/courseApi";
 import { toast } from "sonner";
 
 function CourseTab() {
   const params = useParams();
   const id = params.id;
-  const { data: getCourseData, isLoading: getCourseIsLoading } =
-    useGetCourseByIdQuery(id, {refetchOnMountOrArgChange:true});
+  const {
+    data: getCourseData,
+    isLoading: getCourseIsLoading,
+    refetch,
+  } = useGetCourseByIdQuery(id, { refetchOnMountOrArgChange: true });
+
+  const [publishCourse, {}] = usePublishCourseMutation();
 
   const [editCourse, { data, isLoading, isSuccess, error }] =
     useEditCourseMutation();
 
-  const isPublished = false;
   const editor = useRef(null);
   const [input, setInput] = useState({
     courseTitle: "",
@@ -52,19 +57,18 @@ function CourseTab() {
   console.log(course);
 
   useEffect(() => {
-  if (!course) return;    
-  setInput({
-    courseTitle: course.course_title || "",
-    subTitle: course.subtitle || "",
-    description: course.description || "",
-    category: course.category || "",
-    courseLevel: course.course_level || "",
-    coursePrice: course.course_price ?? "",
-    courseThumbnail: course.course_thumbnail || "",
-  });
-  setPreviewThumbnail(course.course_thumbnail || "");
-}, [course]);
-
+    if (!course) return;
+    setInput({
+      courseTitle: course.course_title || "",
+      subTitle: course.subtitle || "",
+      description: course.description || "",
+      category: course.category || "",
+      courseLevel: course.course_level || "",
+      coursePrice: course.course_price ?? "",
+      courseThumbnail: course.course_thumbnail || "",
+    });
+    setPreviewThumbnail(course.course_thumbnail || "");
+  }, [course]);
 
   const [previewThumbnail, setPreviewThumbnail] = useState("");
 
@@ -107,6 +111,18 @@ function CourseTab() {
     await editCourse({ formData, id });
   };
 
+  const publishStatusHandler = async (action) => {
+    try {
+      const response = await publishCourse({ id, query: !action });
+      if (response.data) {
+        refetch();
+        toast.success(response.data.message);
+      }
+    } catch (error) {
+      toast.error("Failed to publish or unpublish course");
+    }
+  };
+
   useEffect(() => {
     if (isSuccess) {
       toast.success(data.message || "Course updated successfully");
@@ -140,8 +156,11 @@ function CourseTab() {
           </CardDescription>
         </div>
         <div className="flex items-center gap-2">
-          <Button className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow hover:from-indigo-600 hover:to-purple-700">
-            {isPublished ? "Unpublish" : "Publish"}
+          <Button
+            className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow hover:from-indigo-600 hover:to-purple-700"
+            onClick={() => publishStatusHandler(course.is_published)}
+          >
+            {course.is_published ? "Unpublish" : "Publish"}
           </Button>
           <Button
             variant="outline"

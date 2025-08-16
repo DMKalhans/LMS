@@ -105,17 +105,29 @@ export const logout = async (req, res) => {
 export const getUserProfile = async (req, res) => {
   try {
     //console.log("User is obtained from isAuthenticated => getUserProfile as",req.user);
-    
+
     const userId = req.user.userId;
-    
     const result = await db.query(
-      `SELECT users.id, users.name, users.email, users.role, users.photo_url,  COALESCE(ARRAY_AGG(user_courses.course_id), '{}') AS courses 
-      FROM users 
-      LEFT JOIN user_courses ON users.id = user_courses.user_id 
-      WHERE id = $1
-      GROUP BY users.id, users.name, users.email, users.role, users.photo_url;`,
+      `SELECT 
+      u.*,
+      COALESCE(
+        JSON_AGG(
+          JSON_BUILD_OBJECT(
+            'course', c.*,
+            'instructor', i.*
+          )
+        ) FILTER (WHERE c.id IS NOT NULL), '[]'
+      ) AS courses
+    FROM users u
+    LEFT JOIN user_courses uc ON u.id = uc.user_id
+    LEFT JOIN courses c ON uc.course_id = c.id
+    LEFT JOIN instructor_courses ic ON c.id = ic.course_id
+    LEFT JOIN users i ON ic.instructor_id = i.id
+    WHERE u.id = $1
+    GROUP BY u.id;`,
       [userId]
     );
+
     const user = result.rows[0];
 
     //console.log("User is extracted from database based on userId inside req.user as: ",user);
