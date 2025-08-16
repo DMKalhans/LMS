@@ -248,19 +248,23 @@ export const editLecture = async (req, res) => {
     if (lectureTitle && uploadVidInfo) {
       await db.query(
         `UPDATE lectures SET lecture_title = $1, video_url = $2, public_id = $3 WHERE id = $4`,
-        [lectureTitle, uploadVidInfo.videoUrl, uploadVidInfo.publicId, lectureId]
+        [
+          lectureTitle,
+          uploadVidInfo.videoUrl,
+          uploadVidInfo.publicId,
+          lectureId,
+        ]
       );
-    } else if(!lectureTitle){
+    } else if (!lectureTitle) {
       await db.query(
         `UPDATE lectures SET  video_url = $1, public_id = $2 WHERE id = $3`,
         [uploadVidInfo.videoUrl, uploadVidInfo.publicId, lectureId]
       );
-    }
-    else if(!uploadVidInfo){
-       await db.query(
-        `UPDATE lectures SET lecture_title = $1 WHERE id = $2`,
-        [lectureTitle,lectureId]
-      );
+    } else if (!uploadVidInfo) {
+      await db.query(`UPDATE lectures SET lecture_title = $1 WHERE id = $2`, [
+        lectureTitle,
+        lectureId,
+      ]);
     }
 
     //Update is_preview_free in courses_lecture table
@@ -306,7 +310,6 @@ export const removeLecture = async (req, res) => {
       success: true,
       message: "Lecture removed successfully.",
     });
-
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -318,18 +321,18 @@ export const removeLecture = async (req, res) => {
 
 export const getLectureById = async (req, res) => {
   try {
-    const {lectureId} = req.params;
+    const { lectureId } = req.params;
 
-  const result = await db.query(`SELECT * FROM lectures WHERE id = $1`, [
-    lectureId,
-  ]);
+    const result = await db.query(`SELECT * FROM lectures WHERE id = $1`, [
+      lectureId,
+    ]);
 
-  const lecture = result.rows[0];
-  return res.status(200).json({
-    success: true,
-    message: "Lecture retrieved successfully.",
-    lecture,
-  });
+    const lecture = result.rows[0];
+    return res.status(200).json({
+      success: true,
+      message: "Lecture retrieved successfully.",
+      lecture,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -339,3 +342,70 @@ export const getLectureById = async (req, res) => {
   }
 };
 
+export const togglePublishCourse = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { publish } = req.query;
+
+    const get_course_query = `SELECT * FROM courses WHERE id = $1`;
+    const result = await db.query(get_course_query, [id]);
+    const course = result.rows[0];
+
+    if (!course) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Course not found!" });
+    }
+
+    const publishStatus = publish === "true";
+    const toggle_status_query = `UPDATE courses SET is_published = $1 WHERE id = $2 RETURNING *`;
+    const updated = await db.query(toggle_status_query, [publish, id]);
+
+    return res.status(200).json({
+      success: true,
+      message: `Course ${
+        publishStatus ? "published" : "unpublished"
+      } successfully.`,
+      course: updated.rows[0],
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update status.",
+    });
+  }
+};
+
+export const getPublishedCourse = async (_, res) => {
+  try {
+    const get_courses_query = `SELECT 
+      COALESCE(
+        JSON_AGG(
+          JSON_BUILD_OBJECT(
+            'course', c.*,
+            'instructor', i.*
+          )
+        ) FILTER (WHERE c.id IS NOT NULL), '[]'
+      ) AS courses
+    FROM courses c 
+    LEFT JOIN instructor_courses ic on c.id = ic.course_id 
+    LEFT JOIN users i ON ic.instructor_id = i.id
+    WHERE c.is_published = true`;
+    const result = await db.query(get_courses_query);
+    const courses = result.rows[0].courses;
+    if (!courses) {
+      return res.status(404).json({
+        message: "Course not found",
+      });
+    }
+    return res.status(200).json({
+      courses,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Failed to get published courses",
+    });
+  }
+};

@@ -19,6 +19,8 @@ import AddCourse from "./pages/admin/course/AddCourse";
 import EditCourse from "./pages/admin/course/EditCourse";
 import CreateLecture from "./pages/admin/lecture/CreateLecture";
 import EditLecture from "./pages/admin/lecture/EditLecture";
+import CourseDetail from "./pages/student/CourseDetail";
+import CourseProgress from "./pages/student/CourseProgress";
 
 const appRouter = createBrowserRouter([
   {
@@ -35,49 +37,57 @@ const appRouter = createBrowserRouter([
         ),
       },
       {
-        path:"login",
-        element:<Login/>
+        path: "login",
+        element: <Login />,
       },
       {
-        path:"learning",
-        element:<MyLearning/>
+        path: "learning",
+        element: <MyLearning />,
       },
       {
-        path:"profile",
-        element:<Profile/>
+        path: "profile",
+        element: <Profile />,
+      },
+      {
+        path: "course-detail/:id",
+        element: <CourseDetail />,
+      },
+      {
+        path: "course-progress/:id",
+        element: <CourseProgress />,
       },
 
       //Admin path starts from here
       {
-        path:"admin",
-        element:<Sidebar />,
+        path: "admin",
+        element: <Sidebar />,
         children: [
           {
-            path:"dashboard",
-            element:<Dashboard />
+            path: "dashboard",
+            element: <Dashboard />,
           },
           {
-            path:"course",
-            element: <CourseTable />
+            path: "course",
+            element: <CourseTable />,
           },
           {
-            path:"course/create",
-            element: <AddCourse />
+            path: "course/create",
+            element: <AddCourse />,
           },
           {
-            path:"course/:id",
-            element:<EditCourse />
+            path: "course/:id",
+            element: <EditCourse />,
           },
           {
-            path:"course/:id/lectures",
-            element:<CreateLecture />
+            path: "course/:id/lectures",
+            element: <CreateLecture />,
           },
           {
-            path:"course/:id/lectures/:lectureId",
-            element:<EditLecture />
-          }
-        ]
-      }
+            path: "course/:id/lectures/:lectureId",
+            element: <EditLecture />,
+          },
+        ],
+      },
     ],
   },
 ]);
