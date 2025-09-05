@@ -37,9 +37,17 @@ import axios from "axios";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Upload, CheckCircle2, Loader2, Trash2, Video, ShieldCheck, Info } from "lucide-react";
+import {
+  Upload,
+  CheckCircle2,
+  Loader2,
+  Trash2,
+  Video,
+  ShieldCheck,
+  Info,
+} from "lucide-react";
 
-const MEDIA_API = "http://localhost:8080/api/v1/media";
+const MEDIA_API = "https://lmsdeploy-t2vu.onrender.com/api/v1/media";
 
 // tiny classnames helper (avoid TS + keeps dependencies minimal)
 const cx = (...args) => args.filter(Boolean).join(" ");
@@ -55,15 +63,15 @@ function LectureTab() {
   const [mediaProgress, setMediaProgress] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [btnDisable, setBtnDisable] = useState(true);
-  const {data:lectureData} = useGetLectureByIdQuery({lectureId, id});
+  const { data: lectureData } = useGetLectureByIdQuery({ lectureId, id });
 
   const lecture = lectureData?.lecture;
 
-   useEffect(()=>{
-    if(lecture){
+  useEffect(() => {
+    if (lecture) {
       setLectureTitle(lecture.lecture_title);
     }
-  },[lecture])
+  }, [lecture]);
 
   const { refetch } = useGetCourseLectureQuery(id, { skip: !id });
 
@@ -72,13 +80,22 @@ function LectureTab() {
 
   const [
     removeLecture,
-    { data: removeData, isLoading: removeIsLoading, isSuccess: removeIsSuccess, error: removeError },
+    {
+      data: removeData,
+      isLoading: removeIsLoading,
+      isSuccess: removeIsSuccess,
+      error: removeError,
+    },
   ] = useRemoveLectureMutation();
 
   const inputRef = useRef(null);
 
   const canSubmit = useMemo(() => {
-    return Boolean(lectureTitle && lectureTitle.trim()) && Boolean(uploadVidInfo) && !isLoading;
+    return (
+      Boolean(lectureTitle && lectureTitle.trim()) &&
+      Boolean(uploadVidInfo) &&
+      !isLoading
+    );
   }, [lectureTitle, uploadVidInfo, isLoading]);
 
   const fileChangeHandler = async (e) => {
@@ -160,7 +177,9 @@ function LectureTab() {
         <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between bg-gradient-to-b from-muted/40 to-background p-6">
           <div className="space-y-1">
             <CardTitle className="text-2xl">Edit Lecture</CardTitle>
-            <CardDescription>Make changes and click save when done</CardDescription>
+            <CardDescription>
+              Make changes and click save when done
+            </CardDescription>
           </div>
 
           <div className="flex items-center gap-2">
@@ -171,7 +190,9 @@ function LectureTab() {
                     variant="secondary"
                     className={cx(
                       "px-3 py-1 text-xs",
-                      isFree ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : ""
+                      isFree
+                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                        : ""
                     )}
                   >
                     <ShieldCheck className="h-4 w-4 mr-1" />
@@ -186,7 +207,11 @@ function LectureTab() {
 
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="destructive" size="sm" disabled={removeIsLoading}>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  disabled={removeIsLoading}
+                >
                   {removeIsLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
@@ -199,7 +224,8 @@ function LectureTab() {
                 <DialogHeader>
                   <DialogTitle>Remove lecture?</DialogTitle>
                   <DialogDescription>
-                    This action is irreversible. The lecture and its associations will be deleted.
+                    This action is irreversible. The lecture and its
+                    associations will be deleted.
                   </DialogDescription>
                 </DialogHeader>
                 <DialogFooter className="sm:justify-end">
@@ -267,7 +293,11 @@ function LectureTab() {
                   onChange={fileChangeHandler}
                   accept="video/*"
                 />
-                <Button type="button" variant="secondary" onClick={() => inputRef.current?.click()}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => inputRef.current?.click()}
+                >
                   <Upload className="h-4 w-4 mr-2" /> Choose file
                 </Button>
               </div>
