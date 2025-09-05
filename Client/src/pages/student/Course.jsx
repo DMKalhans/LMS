@@ -17,6 +17,7 @@ const Course = ({ data }) => {
   }
   const course = data.course;
   const instructor = data.instructor;
+  console.log(course);
 
   return (
     <Link to={`/course-detail/${course.id}`}>
