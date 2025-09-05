@@ -66,17 +66,15 @@ export const getInstructorCourses = async (req, res) => {
       [userId]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        course: [],
-        message: "No courses found for the instructor.",
-      });
-    }
     const courses = result.rows;
 
     return res.status(200).json({
       success: true,
       courses,
+      message:
+        courses.length === 0
+          ? "No courses found for the instructor."
+          : undefined,
     });
   } catch (error) {
     console.log(error);
