@@ -47,8 +47,8 @@ export const createCheckoutSession = async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `https://lmsdeploy-t2vu.onrender.com/course-progress/${id}`,
-      cancel_url: `https://lmsdeploy-t2vu.onrender.com/course-detail/${id}`,
+      success_url: `https://lmsdeploy-t2vu.onrender.com/api/v1/course-progress/${id}`,
+      cancel_url: `https://lmsdeploy-t2vu.onrender.com/api/v1/course-detail/${id}`,
       metadata: {
         courseId: id,
         userId: userId,
